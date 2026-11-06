@@ -157,3 +157,11 @@ test('script stays short enough to read', () => {
   const lines = readFileSync(SCRIPT, 'utf8').split('\n').length;
   assert.ok(lines <= 400, `${lines} lines`);
 });
+
+test('--since collects from a date up to the start of today, for testing', async () => {
+  const { sinceWindow } = await import('../latency-collect.mjs');
+  const w = sinceWindow('2026-11-06', Date.UTC(2026, 10, 7, 15));
+  assert.deepEqual(w, [{ month: '2026-11', starting_at: '2026-11-06T00:00:00Z', ending_at: '2026-11-07T00:00:00Z', final: false }]);
+  assert.throws(() => sinceWindow('2026-11-07', Date.UTC(2026, 10, 7, 15)), /before today/);
+  assert.throws(() => sinceWindow('2025-12-01'), /this year/);
+});

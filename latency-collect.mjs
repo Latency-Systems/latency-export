@@ -3,13 +3,10 @@
 // and writes latency-bundle.json for your Latency audit.
 //
 // What it does, in order:
-//   1. Asks for your key. The key stays in memory only. It is never written to disk,
-//      printed, or put in the bundle.
-//   2. Calls two read only endpoints: /v1/organizations/analytics/usage and /cost.
-//      No other network calls. No telemetry.
+//   1. Asks for your key. It stays in memory only: never written to disk, printed, or put in the bundle.
+//   2. Calls two read only endpoints, /v1/organizations/analytics/usage and /cost. Nothing else. No telemetry.
 //   3. Replaces every ID and email with a salted hash. Drops names.
-//   4. Prints a summary, writes latency-bundle.json (to send) and
-//      latency-names.local.json (to keep; it maps hashes back to your IDs and emails).
+//   4. Prints a summary, writes latency-bundle.json (to send) and latency-names.local.json (to keep).
 //
 // Zero dependencies. Node 22 or newer. Docs: platform.claude.com/docs/en/manage-claude/usage-cost-analytics-api
 
@@ -22,8 +19,7 @@ import { parseArgs } from 'node:util';
 export const VERSION = '0.1.0';
 const API_VERSION = '2026-10-21';
 const BETA = 'analytics-usage-cost-2026-08-24';
-const EARLIEST = Date.UTC(2026, 0, 1); // the API has no data before Jan 1 2026
-const DAY = 86_400_000;
+const EARLIEST = Date.UTC(2026, 0, 1), DAY = 86_400_000; // the API has no data before Jan 1 2026
 
 // Five dimensions is the API maximum per query (cost_type and token_type don't count).
 const CORE = ['model', 'workspace_id', 'api_key_id', 'service_tier', 'inference_geo'];
@@ -119,24 +115,27 @@ export function normalize(row, q, hasher) {
 }
 
 // ---------- date windows ----------
-
 // Last N full calendar months. A month is "final" once it ended 7+ days ago,
 // because Anthropic revises totals until about the 7th of the next month.
+const iso = (t) => new Date(t).toISOString().replace('.000', '');
 export function monthWindows(n, now = Date.now()) {
-  const d = new Date(now);
-  const out = [];
+  const d = new Date(now), out = [];
   for (let i = n; i >= 1; i--) {
     const start = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - i, 1);
     const end = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - i + 1, 1);
     if (start < EARLIEST || start < now - 365 * DAY) continue;
-    const iso = (t) => new Date(t).toISOString().replace('.000', '');
     out.push({ month: iso(start).slice(0, 7), starting_at: iso(start), ending_at: iso(end), final: now - end >= 7 * DAY });
   }
   return out;
 }
 
-// ---------- HTTP ----------
+export function sinceWindow(since, now = Date.now()) { // for testing: a start date up to the start of today (UTC), 31 days max
+  const start = Date.parse(`${since}T00:00:00Z`), end = Math.min(start + 31 * DAY, now - (now % DAY));
+  if (!(end > start) || start < EARLIEST) throw new Error('--since must be a date this year and before today, as YYYY-MM-DD.');
+  return [{ month: since.slice(0, 7), starting_at: iso(start), ending_at: iso(end), final: false }];
+}
 
+// ---------- HTTP ----------
 export function makeClient({ baseUrl, key, auth, paceMs, log }) {
   const base = new URL(baseUrl);
   if (base.protocol !== 'https:' && !['127.0.0.1', 'localhost'].includes(base.hostname)) {
@@ -312,6 +311,7 @@ const HELP = `Usage: node latency-collect.mjs --audit <id> --salt <salt> [option
   --no-names          Skip the local name map
   --base-url <url>    API base URL (default https://api.anthropic.com)
   --bearer            Send the key as a Bearer token (OAuth or cloud tokens)
+  --since <date>      Instead of full months, collect from this date (YYYY-MM-DD) to today. For testing.
   --pace-ms <n>       Minimum gap between requests (default 1100, the org limit is 60 per minute)
 
 Set LATENCY_KEY to skip the key prompt.`;
@@ -323,7 +323,7 @@ export async function main(argv = process.argv.slice(2)) {
     'names-out': { type: 'string', default: 'latency-names.local.json' },
     'no-names': { type: 'boolean', default: false }, bearer: { type: 'boolean', default: false },
     'base-url': { type: 'string', default: 'https://api.anthropic.com' },
-    'pace-ms': { type: 'string', default: '1100' }, help: { type: 'boolean', default: false },
+    'pace-ms': { type: 'string', default: '1100' }, help: { type: 'boolean', default: false }, since: { type: 'string' },
   } });
   if (o.help) return console.log(HELP);
   if (!o.audit || !TOKEN.test(o.audit)) throw new Error('Missing or invalid --audit. Use the command Latency sent you.');
@@ -331,7 +331,7 @@ export async function main(argv = process.argv.slice(2)) {
 
   const keys = [];
   const log = (s) => { for (const k of keys) s = s.split(k).join('[key]'); console.log(s); };
-  const months = monthWindows(Number(o.months));
+  const months = o.since ? sinceWindow(o.since) : monthWindows(Number(o.months));
   if (!months.length) throw new Error('No months in range. Anthropic data starts Jan 1 2026.');
   const names = o['no-names'] ? null : { actors: {}, api_keys: {}, workspaces: {} };
   const hasher = makeHasher(o.salt, names);
