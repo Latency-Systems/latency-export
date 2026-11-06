@@ -5,10 +5,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { assertSafe, makeHasher, monthWindows, tok } from '../latency-collect.mjs';
+import { assertSafe, makeHasher, monthWindows, tok } from '../latency-export.mjs';
 import { KEY, startMock } from './mock-api.mjs';
 
-const SCRIPT = fileURLToPath(new URL('../latency-collect.mjs', import.meta.url));
+const SCRIPT = fileURLToPath(new URL('../latency-export.mjs', import.meta.url));
 const SALT = 'test-salt-0123456789abcdef';
 
 function run(args, env = {}) {
@@ -22,7 +22,7 @@ describe('full run against the mock API', () => {
   let mock, dir, result, bundle, bundleText, names;
   before(async () => {
     mock = await startMock();
-    dir = mkdtempSync(join(tmpdir(), 'latency-collect-'));
+    dir = mkdtempSync(join(tmpdir(), 'latency-export-'));
     result = await run(['--audit', 'test-001', '--salt', SALT, '--base-url', mock.url, '--pace-ms', '0',
       '--out', join(dir, 'bundle.json'), '--names-out', join(dir, 'names.json')], { LATENCY_KEY: KEY });
     bundleText = readFileSync(join(dir, 'bundle.json'), 'utf8');
@@ -57,7 +57,7 @@ describe('full run against the mock API', () => {
     }
   });
 
-  test('collects every query for every month', () => {
+  test('exports every query for every month', () => {
     const s = bundle.sources[0];
     assert.equal(s.queries.length, 5 * bundle.months.length);
     assert.equal(bundle.months.length, 3);
@@ -97,7 +97,7 @@ describe('full run against the mock API', () => {
 
 test('wrong key stops without writing a bundle or echoing the key', async () => {
   const mock = await startMock();
-  const dir = mkdtempSync(join(tmpdir(), 'latency-collect-'));
+  const dir = mkdtempSync(join(tmpdir(), 'latency-export-'));
   const wrong = 'sk-ant-admin01-WRONGKEY-999';
   const r = await run(['--audit', 'x', '--salt', SALT, '--base-url', mock.url, '--pace-ms', '0', '--out', join(dir, 'b.json')],
     { LATENCY_KEY: wrong });
@@ -158,8 +158,8 @@ test('script stays short enough to read', () => {
   assert.ok(lines <= 400, `${lines} lines`);
 });
 
-test('--since collects from a date up to the start of today, for testing', async () => {
-  const { sinceWindow } = await import('../latency-collect.mjs');
+test('--since exports from a date up to the start of today, for testing', async () => {
+  const { sinceWindow } = await import('../latency-export.mjs');
   const w = sinceWindow('2026-11-06', Date.UTC(2026, 10, 7, 15));
   assert.deepEqual(w, [{ month: '2026-11', starting_at: '2026-11-06T00:00:00Z', ending_at: '2026-11-07T00:00:00Z', final: false }]);
   assert.throws(() => sinceWindow('2026-11-07', Date.UTC(2026, 10, 7, 15)), /before today/);

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Latency collector. Reads usage and cost totals from your Anthropic organization
+// Latency usage export. Reads usage and cost totals from your Anthropic organization
 // and writes latency-bundle.json for your Latency audit.
 //
 // What it does, in order:
@@ -144,7 +144,7 @@ export function makeClient({ baseUrl, key, auth, paceMs, log }) {
   const headers = {
     'anthropic-version': API_VERSION,
     'anthropic-beta': BETA,
-    'user-agent': `latency-collect/${VERSION}`,
+    'user-agent': `latency-export/${VERSION}`,
     ...(auth === 'bearer' ? { authorization: `Bearer ${key}` } : { 'x-api-key': key }),
   };
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -203,9 +203,9 @@ export function makeClient({ baseUrl, key, auth, paceMs, log }) {
   return { all, calls: () => calls };
 }
 
-// ---------- collecting one organization ----------
+// ---------- exporting one organization ----------
 
-export async function collectOrg({ client, months, hasher, log }) {
+export async function exportOrg({ client, months, hasher, log }) {
   const tables = Object.fromEntries(QUERIES.map((q) => [q.id, []]));
   const queries = [];
   let refreshed = null; // latest data_refreshed_at seen
@@ -301,17 +301,17 @@ async function ask(question) {
 
 // ---------- main ----------
 
-const HELP = `Usage: node latency-collect.mjs --audit <id> --salt <salt> [options]
+const HELP = `Usage: node latency-export.mjs --audit <id> --salt <salt> [options]
 
   --audit <id>        Audit ID from Latency
   --salt <salt>       Hashing salt from Latency
-  --months <n>        Full months to collect (default 3)
+  --months <n>        Full months to export (default 3)
   --out <file>        Bundle path (default latency-bundle.json)
   --names-out <file>  Local name map path (default latency-names.local.json)
   --no-names          Skip the local name map
   --base-url <url>    API base URL (default https://api.anthropic.com)
   --bearer            Send the key as a Bearer token (OAuth or cloud tokens)
-  --since <date>      Instead of full months, collect from this date (YYYY-MM-DD) to today. For testing.
+  --since <date>      Instead of full months, export from this date (YYYY-MM-DD) to today. For testing.
   --pace-ms <n>       Minimum gap between requests (default 1100, the org limit is 60 per minute)
 
 Set LATENCY_KEY to skip the key prompt.`;
@@ -336,8 +336,8 @@ export async function main(argv = process.argv.slice(2)) {
   const names = o['no-names'] ? null : { actors: {}, api_keys: {}, workspaces: {} };
   const hasher = makeHasher(o.salt, names);
 
-  log(`Latency collector ${VERSION}`);
-  log(`Audit ${o.audit}. Collecting ${months[0].month} to ${months.at(-1).month}.`);
+  log(`Latency usage export ${VERSION}`);
+  log(`Audit ${o.audit}. Exporting ${months[0].month} to ${months.at(-1).month}.`);
   log(`Use a Console Admin key, or a Claude Enterprise Analytics key. Input is hidden.\n`);
 
   const sources = [];
@@ -352,7 +352,7 @@ export async function main(argv = process.argv.slice(2)) {
     if (/^sk-ant-api/.test(key)) log('Note: this looks like a regular API key. Usage data needs an Admin key.');
     const client = makeClient({ baseUrl: o['base-url'], key, auth: o.bearer ? 'bearer' : 'x-api-key', paceMs: Number(o['pace-ms']), log });
     log('Fetching. This usually takes under five minutes.');
-    const org = await collectOrg({ client, months, hasher, log });
+    const org = await exportOrg({ client, months, hasher, log });
     sources.push({ provider: 'anthropic', org: sources.length + 1, key_kind: key.startsWith('sk-ant-admin') ? 'admin_key' : 'other_key',
       base_host: new URL(o['base-url']).host, requests_made: client.calls(), ...org });
     if (process.env.LATENCY_KEY || !process.stdin.isTTY) break;
@@ -370,7 +370,7 @@ export async function main(argv = process.argv.slice(2)) {
   const self = createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex');
   const bundle = {
     schema: 'latency-bundle/1',
-    collector: { name: 'latency-collect', version: VERSION, sha256: self },
+    tool: { name: 'latency-export', version: VERSION, sha256: self },
     audit_id: o.audit,
     salt_check: hasher.h('latency-salt-check'),
     created_at: new Date().toISOString().replace(/\.\d+Z$/, 'Z'),

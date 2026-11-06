@@ -1,4 +1,4 @@
-# Latency collector
+# Latency usage export
 
 One file you run on your own machine. It reads usage and cost totals from your Anthropic organization and writes `latency-bundle.json` for your Latency audit.
 
@@ -37,18 +37,18 @@ Admin keys have no read only option. That's why the key stays with you: the scri
 Requires Node 22 or newer. Use the exact command Latency sent you. It looks like this:
 
 ```
-node latency-collect.mjs --audit <audit id> --salt <salt>
+node latency-export.mjs --audit <audit id> --salt <salt>
 ```
 
 ### Check your download (optional)
 
-Each release lists a SHA256 fingerprint of `latency-collect.mjs`. Compare it with yours:
+Each release lists a SHA256 fingerprint of `latency-export.mjs`. Compare it with yours:
 
 ```
-shasum -a 256 latency-collect.mjs
+shasum -a 256 latency-export.mjs
 ```
 
-The same fingerprint is recorded in the bundle (`collector.sha256`), so we can confirm you ran the published version.
+The same fingerprint is recorded in the bundle (`tool.sha256`), so we can confirm you ran the published version.
 
 Paste the key when asked (the input is hidden). Most organizations finish in under five minutes.
 
@@ -71,12 +71,13 @@ Every string in `latency-bundle.json` is a date, a hash (`h_` followed by 32 hex
 | `modes_daily` | day, model, product, service tier, speed, context window | cost and requests |
 | `month_total` | month | total cost, used to check the daily rows add up |
 
-`collector.sha256` is a fingerprint of the script you ran, so we can confirm it matches the published version.
+`tool.sha256` is a fingerprint of the script you ran, so we can confirm it matches the published version.
 
 ## Options
 
 ```
---months <n>        Full months to collect (default 3)
+--months <n>        Full months to export (default 3)
+--since <date>      Instead of full months, export from this date (YYYY-MM-DD) to today
 --out <file>        Bundle path
 --names-out <file>  Name map path
 --no-names          Skip the name map
