@@ -3,7 +3,7 @@
 # 2. Publishes to npm with provenance, so `npm audit signatures` can trace it to this workflow.
 # 3. Attaches latency-export.mjs to the release with a build attestation (`gh attestation verify`).
 #
-# Needs the NPM_TOKEN repository secret (a granular npm token with publish rights on @latency/export),
+# Needs the NPM_TOKEN repository secret (a granular npm token with publish rights on @latency-systems/export),
 # until npm trusted publishing is set up for the package.
 
 name: Publish

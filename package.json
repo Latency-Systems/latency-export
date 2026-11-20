@@ -1,5 +1,5 @@
 {
-  "name": "@latency/export",
+  "name": "@latency-systems/export",
   "version": "0.1.1",
   "description": "Reads Anthropic usage and cost totals on your own machine and writes a bundle for your Latency audit.",
   "type": "module",

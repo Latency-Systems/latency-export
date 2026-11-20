@@ -46,7 +46,7 @@ node latency-export.mjs --audit <audit id> --salt <salt>
 Or run it straight from npm, without downloading the file:
 
 ```
-npx @latency/export --audit <audit id> --salt <salt>
+npx @latency-systems/export --audit <audit id> --salt <salt>
 ```
 
 ### Check your download (optional)

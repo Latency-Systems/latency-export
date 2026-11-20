@@ -51,7 +51,7 @@ shasum -a 256 latency-export.mjs
 
 Compare it with the fingerprint listed on the release page for your version. The same fingerprint is recorded in the bundle, so we can confirm it too.
 
-If you install from npm (`npx @latency/export`), each version is published from this repository by GitHub Actions with npm provenance. To check the signatures:
+If you install from npm (`npx @latency-systems/export`), each version is published from this repository by GitHub Actions with npm provenance. To check the signatures:
 
 ```
 npm audit signatures
