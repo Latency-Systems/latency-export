@@ -11,8 +11,8 @@ This file is for the engineer or security reviewer deciding whether to run the L
    * `/v1/organizations/analytics/usage` (token counts)
    * `/v1/organizations/analytics/cost` (cost in USD)
 3. Replaces every workspace ID, API key ID, user ID and email with a salted hash. Drops all names.
-4. Writes two files in the current folder:
-   * `latency-bundle.json`, the file you send. See [`sample-bundle.json`](sample-bundle.json) for exactly what it looks like.
+4. Writes two files, in the current folder unless you choose other paths with `--out` and `--names-out`:
+   * `latency-bundle.json`, the file you send. See [`sample-bundle.json`](sample-bundle.json) for exactly what it looks like (made up data). `"final": false` and the matching warning mean the latest month is still being revised by Anthropic, which happens until about the 7th of the next month.
    * `latency-names.local.json`, which maps hashes back to real names. It is created readable only by you, and it stays with you.
 
 ## What it never does
@@ -20,11 +20,11 @@ This file is for the engineer or security reviewer deciding whether to run the L
 * Sends anything anywhere except the two Anthropic endpoints above. There is no telemetry and no call to any Latency server. You send the file yourself, if you choose to.
 * Reads prompts, outputs, conversations, files, or payment details. The endpoints don't return them.
 * Changes anything in your Anthropic organization. It only reads.
-* Runs other programs or writes outside the two output files.
+* Runs other programs or writes any file other than those two.
 
 ## Checks built into the code
 
-* Requests to any host other than the base URL are blocked, and the base URL must use HTTPS.
+* It only ever requests one base URL, `https://api.anthropic.com` by default. A different base URL must use HTTPS (plain HTTP is allowed only for `localhost`, for testing).
 * Before writing, the script checks the whole bundle and refuses to write it if it finds your key, anything that looks like an Anthropic key, an `@`, or any text that isn't a number, date, hash, or short API label.
 * The SHA256 of the script is recorded in the bundle, so we can confirm you ran the published version.
 
@@ -42,7 +42,13 @@ Anthropic's usage and cost endpoints require an Admin key, and Anthropic offers 
 shasum -a 256 latency-export.mjs
 ```
 
-Compare it with the fingerprint on the release page.
+For v0.1.0 it should print:
+
+```
+ae532091b1bf48d76dfd82cd343c83247bc4fe23ab1bf71f274c19fcbae97e34
+```
+
+Each release page lists the fingerprint for that version.
 
 ## Optional: restrict file access
 
