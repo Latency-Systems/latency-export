@@ -1,0 +1,253 @@
+{
+ "schema": "latency-bundle/1",
+ "tool": {
+  "name": "latency-export",
+  "version": "0.1.0",
+  "sha256": "ae532091b1bf48d76dfd82cd343c83247bc4fe23ab1bf71f274c19fcbae97e34"
+ },
+ "audit_id": "sample-001",
+ "salt_check": "h_b9bb5e6079bdcb810280bc372db65528",
+ "created_at": "2026-11-06T22:06:52Z",
+ "months": [
+  {
+   "month": "2026-08",
+   "starting_at": "2026-08-01T00:00:00Z",
+   "ending_at": "2026-09-01T00:00:00Z",
+   "final": true
+  },
+  {
+   "month": "2026-09",
+   "starting_at": "2026-09-01T00:00:00Z",
+   "ending_at": "2026-10-01T00:00:00Z",
+   "final": true
+  },
+  {
+   "month": "2026-10",
+   "starting_at": "2026-10-01T00:00:00Z",
+   "ending_at": "2026-11-01T00:00:00Z",
+   "final": false
+  }
+ ],
+ "warnings": [
+  "org1:month_not_final:2026-10"
+ ],
+ "sources": [
+  {
+   "provider": "anthropic",
+   "org": 1,
+   "key_kind": "admin_key",
+   "base_host": "api.anthropic.com",
+   "requests_made": 78,
+   "tables": {
+    "usage_daily": [
+     {
+      "date": "2026-08-01",
+      "model": "claude-opus-5-5",
+      "workspace_id": "h_434ec2341adfbae9c710dcb02a2ad4c6",
+      "api_key_id": "h_31276221116e15a7fe1e224e73a09f19",
+      "service_tier": "standard",
+      "inference_geo": null,
+      "uncached_input": 1000,
+      "cache_write_5m": 200,
+      "cache_write_1h": 0,
+      "cache_read": 3000,
+      "output": 500,
+      "web_search": 0,
+      "requests": 10
+     },
+     {
+      "date": "2026-08-01",
+      "model": "claude-haiku-5-5",
+      "workspace_id": "h_9b74def534d8a47bfbc4ba7524e05ec4",
+      "api_key_id": "h_4ae31924a227c42f5ccb39718054f1a8",
+      "service_tier": "batch",
+      "inference_geo": "us",
+      "uncached_input": 5000,
+      "cache_write_5m": 0,
+      "cache_write_1h": 0,
+      "cache_read": 0,
+      "output": 800,
+      "web_search": 0,
+      "requests": 40
+     }
+    ],
+    "cost_daily": [
+     {
+      "date": "2026-08-01",
+      "model": "claude-opus-5-5",
+      "workspace_id": "h_434ec2341adfbae9c710dcb02a2ad4c6",
+      "api_key_id": "h_31276221116e15a7fe1e224e73a09f19",
+      "service_tier": "standard",
+      "inference_geo": null,
+      "cost_type": "tokens",
+      "token_type": "uncached_input_tokens",
+      "amount_cents": "500.000000",
+      "list_amount_cents": "625.000000",
+      "requests": null
+     },
+     {
+      "date": "2026-08-01",
+      "model": "claude-opus-5-5",
+      "workspace_id": "h_434ec2341adfbae9c710dcb02a2ad4c6",
+      "api_key_id": "h_31276221116e15a7fe1e224e73a09f19",
+      "service_tier": "standard",
+      "inference_geo": null,
+      "cost_type": "tokens",
+      "token_type": "cache_creation.ephemeral_5m_input_tokens",
+      "amount_cents": "125.000000",
+      "list_amount_cents": "156.250000",
+      "requests": null
+     }
+    ],
+    "people_daily": [
+     {
+      "date": "2026-08-01",
+      "actor_type": "api_actor",
+      "actor": "h_31276221116e15a7fe1e224e73a09f19",
+      "actor_email": null,
+      "actor_deleted": null,
+      "product": "messages_api",
+      "model": "claude-opus-5-5",
+      "amount_cents": "2045.000000",
+      "list_amount_cents": "2556.250000",
+      "requests": 10
+     },
+     {
+      "date": "2026-08-01",
+      "actor_type": "api_actor",
+      "actor": "h_4ae31924a227c42f5ccb39718054f1a8",
+      "actor_email": null,
+      "actor_deleted": null,
+      "product": "message_batches_api",
+      "model": "claude-haiku-5-5",
+      "amount_cents": "49.500000",
+      "list_amount_cents": "61.875000",
+      "requests": 40
+     }
+    ],
+    "modes_daily": [
+     {
+      "date": "2026-08-01",
+      "model": "claude-opus-5-5",
+      "product": "messages_api",
+      "service_tier": "standard",
+      "speed": "standard",
+      "context_window": "0-200k",
+      "amount_cents": "2045.000000",
+      "list_amount_cents": "2556.250000",
+      "requests": 10
+     },
+     {
+      "date": "2026-08-01",
+      "model": "claude-haiku-5-5",
+      "product": "message_batches_api",
+      "service_tier": "batch",
+      "speed": "standard",
+      "context_window": "0-200k",
+      "amount_cents": "49.500000",
+      "list_amount_cents": "61.875000",
+      "requests": 40
+     }
+    ],
+    "month_total": [
+     {
+      "date": "2026-08-01",
+      "amount_cents": "7039.000000",
+      "list_amount_cents": "8798.750000",
+      "requests": 154
+     },
+     {
+      "date": "2026-09-01",
+      "amount_cents": "7039.000000",
+      "list_amount_cents": "8798.750000",
+      "requests": 154
+     },
+     {
+      "date": "2026-10-01",
+      "amount_cents": "7039.000000",
+      "list_amount_cents": "8798.750000",
+      "requests": 154
+     }
+    ]
+   },
+   "queries": [
+    {
+     "id": "usage_daily",
+     "month": "2026-08",
+     "rows": 8
+    },
+    {
+     "id": "usage_daily",
+     "month": "2026-09",
+     "rows": 8
+    },
+    {
+     "id": "usage_daily",
+     "month": "2026-10",
+     "rows": 8
+    },
+    {
+     "id": "cost_daily",
+     "month": "2026-08",
+     "rows": 48
+    },
+    {
+     "id": "cost_daily",
+     "month": "2026-09",
+     "rows": 48
+    },
+    {
+     "id": "cost_daily",
+     "month": "2026-10",
+     "rows": 48
+    },
+    {
+     "id": "people_daily",
+     "month": "2026-08",
+     "rows": 8
+    },
+    {
+     "id": "people_daily",
+     "month": "2026-09",
+     "rows": 8
+    },
+    {
+     "id": "people_daily",
+     "month": "2026-10",
+     "rows": 8
+    },
+    {
+     "id": "modes_daily",
+     "month": "2026-08",
+     "rows": 8
+    },
+    {
+     "id": "modes_daily",
+     "month": "2026-09",
+     "rows": 8
+    },
+    {
+     "id": "modes_daily",
+     "month": "2026-10",
+     "rows": 8
+    },
+    {
+     "id": "month_total",
+     "month": "2026-08",
+     "rows": 1
+    },
+    {
+     "id": "month_total",
+     "month": "2026-09",
+     "rows": 1
+    },
+    {
+     "id": "month_total",
+     "month": "2026-10",
+     "rows": 1
+    }
+   ],
+   "data_refreshed_at": "2026-11-06T04:00:00Z"
+  }
+ ]
+}

@@ -21,6 +21,8 @@ Before writing the file it:
 
 The code is about 400 lines with no dependencies. Reading it takes under 10 minutes.
 
+See [`sample-bundle.json`](sample-bundle.json) for exactly what the output looks like, and [SECURITY.md](SECURITY.md) for details for your security team.
+
 ## Which key to use
 
 | Your setup | Key | Where to create it |
