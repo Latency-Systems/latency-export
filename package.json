@@ -1,12 +1,32 @@
 {
   "name": "@latency/export",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Reads Anthropic usage and cost totals on your own machine and writes a bundle for your Latency audit.",
   "type": "module",
-  "bin": { "latency-export": "latency-export.mjs" },
-  "files": ["latency-export.mjs", "README.md", "SECURITY.md", "sample-bundle.json", "LICENSE"],
-  "repository": "github:Latency-Systems/latency-export",
-  "engines": { "node": ">=22" },
-  "scripts": { "test": "node --test test/*.test.mjs" },
+  "bin": {
+    "latency-export": "latency-export.mjs"
+  },
+  "files": [
+    "latency-export.mjs",
+    "README.md",
+    "SECURITY.md",
+    "sample-bundle.json",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Latency-Systems/latency-export.git"
+  },
+  "homepage": "https://github.com/Latency-Systems/latency-export#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "license": "MIT"
 }

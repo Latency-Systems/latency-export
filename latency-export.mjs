@@ -16,7 +16,7 @@ import { pathToFileURL } from 'node:url';
 import { createInterface } from 'node:readline/promises';
 import { parseArgs } from 'node:util';
 
-export const VERSION = '0.1.0';
+export const VERSION = '0.1.1';
 const API_VERSION = '2026-10-21';
 const BETA = 'analytics-usage-cost-2026-08-24';
 const EARLIEST = Date.UTC(2026, 0, 1), DAY = 86_400_000; // the API has no data before Jan 1 2026
@@ -176,7 +176,7 @@ export function makeClient({ baseUrl, key, auth, paceMs, log }) {
       }
       const body = await res.json().catch(() => ({}));
       const hint = { 401: 'The key was rejected. Check it was copied fully and has not expired.',
-        403: 'The key does not have access. Use an Admin key (Console) or an Analytics key (Claude Enterprise).' }[res.status] ?? '';
+        403: 'The key does not have access. Use a Console API key created with no workspace, or a Claude Enterprise Analytics key.' }[res.status] ?? '';
       throw new Error(`HTTP ${res.status} ${body?.error?.type ?? ''} ${body?.error?.message ?? ''} ${hint}`.trim());
     }
   }
@@ -338,7 +338,7 @@ export async function main(argv = process.argv.slice(2)) {
 
   log(`Latency usage export ${VERSION}`);
   log(`Audit ${o.audit}. Exporting ${months[0].month} to ${months.at(-1).month}.`);
-  log(`Use a Console Admin key, or a Claude Enterprise Analytics key. Input is hidden.\n`);
+  log(`Use your own Console API key created with no workspace, or a Claude Enterprise Analytics key. Input is hidden.\n`);
 
   const sources = [];
   while (true) {
@@ -349,11 +349,11 @@ export async function main(argv = process.argv.slice(2)) {
     }
     if (!key) throw new Error('No key entered.');
     keys.push(key);
-    if (/^sk-ant-api/.test(key)) log('Note: this looks like a regular API key. Usage data needs an Admin key.');
+    if (/^sk-ant-api/.test(key)) log('Note: this looks like a workspace API key. If you get an access error, create a key with no workspace selected.');
     const client = makeClient({ baseUrl: o['base-url'], key, auth: o.bearer ? 'bearer' : 'x-api-key', paceMs: Number(o['pace-ms']), log });
     log('Fetching. This usually takes under five minutes.');
     const org = await exportOrg({ client, months, hasher, log });
-    sources.push({ provider: 'anthropic', org: sources.length + 1, key_kind: key.startsWith('sk-ant-admin') ? 'admin_key' : 'other_key',
+    sources.push({ provider: 'anthropic', org: sources.length + 1, key_kind: key.startsWith('sk-ant-admin') ? 'admin_key' : key.startsWith('sk-ant-usr') ? 'user_key' : 'other_key',
       base_host: new URL(o['base-url']).host, requests_made: client.calls(), ...org });
     if (process.env.LATENCY_KEY || !process.stdin.isTTY) break;
     if ((await ask('\nAdd another Anthropic organization, for example Claude Enterprise as well as Console? [y/N] ')) !== 'y') break;

@@ -27,12 +27,13 @@ See [`sample-bundle.json`](sample-bundle.json) for exactly what the output looks
 
 | Your setup | Key | Where to create it |
 |---|---|---|
-| Claude Console (API) | Admin key, starts with `sk-ant-admin` | Console, Settings, Admin keys. Set it to expire after 1 day. |
+| Claude Console (API) | Your own API key, not tied to a workspace. Starts with `sk-ant-usr`. Works on the Developer role, no admin needed. | Console, API keys. Link it to yourself, choose no workspace, and set it to expire after 1 day. |
+| Claude Console (API), alternative | Admin key, starts with `sk-ant-admin` | Console, Settings, Admin keys. Set it to expire after 1 day. |
 | Claude Enterprise | Analytics key (`read:analytics` scope) | claude.ai, Organization settings, API. Primary owner only. |
 
 If you have both, run once and add the second organization when the script asks.
 
-Admin keys have no read only option. That's why the key stays with you: the script holds it in memory only, never writes it to disk or logs, and you can revoke it as soon as the run finishes.
+Neither key type has a read only option. That's why the key stays with you: the script holds it in memory only, never writes it to disk or logs, and you can revoke it as soon as the run finishes.
 
 ## Run it
 
@@ -40,6 +41,12 @@ Requires Node 22 or newer. Use the exact command Latency sent you. It looks like
 
 ```
 node latency-export.mjs --audit <audit id> --salt <salt>
+```
+
+Or run it straight from npm, without downloading the file:
+
+```
+npx @latency/export --audit <audit id> --salt <salt>
 ```
 
 ### Check your download (optional)

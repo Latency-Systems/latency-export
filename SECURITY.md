@@ -30,7 +30,14 @@ This file is for the engineer or security reviewer deciding whether to run the L
 
 ## About the key
 
-Anthropic's usage and cost endpoints require an Admin key, and Anthropic offers no read only scope for them. That's why the key never leaves your machine. We recommend:
+There is no read only key for Anthropic's usage and cost endpoints. That's why the key never leaves your machine.
+
+Two key types work on Claude Console organizations:
+
+* **Your own API key, not tied to a workspace** (`sk-ant-usr`). It carries only your own permissions, and a Developer role is enough. This is the smaller ask. We tested it on Nov 20, 2026 with a Developer member and got the same data as an Admin key. Anthropic's docs currently describe Admin credentials for these endpoints, so if it ever stops working, use an Admin key.
+* **An Admin key** (`sk-ant-admin`), created by an organization admin.
+
+Whichever you use:
 
 * Create a key just for this run and set it to expire after 1 day.
 * Revoke it as soon as the run finishes.
@@ -42,13 +49,15 @@ Anthropic's usage and cost endpoints require an Admin key, and Anthropic offers 
 shasum -a 256 latency-export.mjs
 ```
 
-For v0.1.0 it should print:
+Compare it with the fingerprint listed on the release page for your version. The same fingerprint is recorded in the bundle, so we can confirm it too.
+
+If you install from npm (`npx @latency/export`), each version is published from this repository by GitHub Actions with npm provenance. To check the signatures:
 
 ```
-ae532091b1bf48d76dfd82cd343c83247bc4fe23ab1bf71f274c19fcbae97e34
+npm audit signatures
 ```
 
-Each release page lists the fingerprint for that version.
+Provenance proves which commit and workflow built the package. It doesn't prove the code is safe, so reading it is still the real check.
 
 ## Optional: restrict file access
 

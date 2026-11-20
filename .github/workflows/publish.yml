@@ -1,0 +1,57 @@
+# Publishes the usage export when a GitHub release is published.
+# 1. Runs the tests and checks the release tag matches package.json.
+# 2. Publishes to npm with provenance, so `npm audit signatures` can trace it to this workflow.
+# 3. Attaches latency-export.mjs to the release with a build attestation (`gh attestation verify`).
+#
+# Needs the NPM_TOKEN repository secret (a granular npm token with publish rights on @latency/export),
+# until npm trusted publishing is set up for the package.
+
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write      # upload the release asset
+  id-token: write      # npm provenance and attestations
+  attestations: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Test
+        run: node --test test/*.test.mjs
+
+      - name: Check the tag matches package.json
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "Release tag ${GITHUB_REF_NAME} does not match package.json version v${version}"
+            exit 1
+          fi
+
+      - name: Publish to npm with provenance
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Attest latency-export.mjs
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: latency-export.mjs
+
+      - name: Attach the script and its fingerprint to the release
+        run: |
+          shasum -a 256 latency-export.mjs | tee latency-export.mjs.sha256
+          gh release upload "${GITHUB_REF_NAME}" latency-export.mjs latency-export.mjs.sha256 --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
