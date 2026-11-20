@@ -69,6 +69,10 @@ node --permission --allow-fs-read=. --allow-fs-write=. latency-export.mjs --audi
 
 This limits file access only. Node 22 does not restrict network access this way.
 
+## After you send the file
+
+How we use, protect and delete your data, and how to opt out of anonymous benchmarks, is covered in our [audit terms](https://latency.systems/audit-terms). A plain summary is at [latency.systems/usage-export](https://latency.systems/usage-export).
+
 ## Reporting a problem
 
 Email kevin@latency.systems with "Security" in the subject. We reply within one business day.
